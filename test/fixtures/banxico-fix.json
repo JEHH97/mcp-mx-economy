@@ -1,0 +1,14 @@
+{
+  "bmx": {
+    "series": [
+      {
+        "idSerie": "SF43718",
+        "titulo": "Peso per US dollar FIX",
+        "datos": [
+          { "fecha": "02/01/2025", "dato": "20.5000" },
+          { "fecha": "01/01/2025", "dato": "N/E" }
+        ]
+      }
+    ]
+  }
+}

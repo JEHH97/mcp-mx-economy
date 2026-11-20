@@ -1,0 +1,11 @@
+{
+  "Series": [
+    {
+      "INDICADOR": "1002000001",
+      "OBSERVATIONS": [
+        { "TIME_PERIOD": "2025", "OBS_VALUE": "130000000.0000" },
+        { "TIME_PERIOD": "2020", "OBS_VALUE": "126000000.0000" }
+      ]
+    }
+  ]
+}
