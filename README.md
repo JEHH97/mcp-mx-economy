@@ -4,7 +4,7 @@ An open-source Model Context Protocol (MCP) server that gives AI assistants acce
 
 Repository: [github.com/JEHH97/mcp-mx-economy](https://github.com/JEHH97/mcp-mx-economy)
 
-> **Demo:** [Live demo placeholder — add a hosted demo URL when one is available]
+> **npm:** `npx -y mcp-mx-economy` — the package is not published yet. This line will be updated after the first `npm publish` (see [DEPLOY.md](DEPLOY.md)).
 
 ## The problem
 
@@ -57,43 +57,40 @@ Built-in Banxico references are FIX (`SF43718`), target rate (`SF61745`), INPC (
 - **No runtime framework for HTTP:** the optional Streamable HTTP transport uses Node's built-in HTTP server, while stdio remains the default for desktop clients.
 - **Fixture-driven tests:** automated tests inject HTTP responses and use MCP's in-memory client/server transport; they do not call public services or use real credentials.
 
-## Local setup
+## Quick start with npx
 
-Requirements: Node.js 20 or newer and npm.
-
-```sh
-git clone https://github.com/JEHH97/mcp-mx-economy.git
-cd mcp-mx-economy
-npm install
-cp .env.example .env
-# Edit .env and add your personal provider tokens.
-npm run build
-npm start
-```
-
-The server reads `BANXICO_TOKEN` and `INEGI_TOKEN` from the process environment. A token is only required by tools that query its corresponding provider. Without one, that tool returns a clear token-setup message. The example environment file contains placeholders only.
-
-To run the optional Streamable HTTP transport:
+Requirements: Node.js 20 or newer. The package is intended to run through `npx`, so no clone is needed. Until the first npm release, use a local build (see [Local development](#local-development)).
 
 ```sh
-MCP_TRANSPORT=http MCP_HTTP_PORT=3333 npm start
+npx -y mcp-mx-economy
 ```
 
-The endpoint is available at `http://127.0.0.1:3333/mcp`. Keep it local unless you add suitable authentication and network controls.
+Without arguments the server speaks MCP over **stdio**, the default transport for desktop clients. It writes logs to stderr only, so stdout stays reserved for protocol messages.
+
+### Environment variables
+
+| Variable        | Required                            | Purpose                                                                                       |
+| --------------- | ----------------------------------- | --------------------------------------------------------------------------------------------- |
+| `BANXICO_TOKEN` | For Banxico tools                   | Banxico SIE API token, sent in the `Bmx-Token` header. Only tools that query Banxico need it. |
+| `INEGI_TOKEN`   | For INEGI tools                     | INEGI Indicators API token, placed in the documented endpoint path.                           |
+| `MCP_TRANSPORT` | No (default `stdio`)                | Set to `http` to run the optional Streamable HTTP transport.                                  |
+| `MCP_HTTP_PORT` | No (default `3333`, HTTP mode only) | TCP port for the HTTP transport. Bound to `127.0.0.1`.                                        |
+
+A missing token does not stop the server: the affected tool returns a message that names the variable to set. Use placeholders in configuration files and keep real tokens in your local environment only.
 
 ### Claude Desktop
 
-Add the following to the MCP server section of the Claude Desktop configuration, replacing the project path with its absolute path and providing tokens in the environment object:
+Add the server to the `mcpServers` section of the Claude Desktop configuration file and replace the token placeholders:
 
 ```json
 {
   "mcpServers": {
     "mx-economy": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-mx-economy/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "mcp-mx-economy"],
       "env": {
-        "BANXICO_TOKEN": "your-personal-token",
-        "INEGI_TOKEN": "your-personal-token"
+        "BANXICO_TOKEN": "your-banxico-token",
+        "INEGI_TOKEN": "your-inegi-token"
       }
     }
   }
@@ -108,11 +105,11 @@ Add a project MCP entry in `.cursor/mcp.json`:
 {
   "mcpServers": {
     "mx-economy": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-mx-economy/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "mcp-mx-economy"],
       "env": {
-        "BANXICO_TOKEN": "your-personal-token",
-        "INEGI_TOKEN": "your-personal-token"
+        "BANXICO_TOKEN": "your-banxico-token",
+        "INEGI_TOKEN": "your-inegi-token"
       }
     }
   }
@@ -128,16 +125,52 @@ Register a local command in the OpenCode MCP configuration. The following illust
   "mcp": {
     "mx-economy": {
       "type": "local",
-      "command": ["node", "/absolute/path/to/mcp-mx-economy/dist/index.js"],
+      "command": ["npx", "-y", "mcp-mx-economy"],
       "environment": {
-        "BANXICO_TOKEN": "your-personal-token",
-        "INEGI_TOKEN": "your-personal-token"
+        "BANXICO_TOKEN": "your-banxico-token",
+        "INEGI_TOKEN": "your-inegi-token"
       },
       "enabled": true
     }
   }
 }
 ```
+
+### Example transcript
+
+A simplified exchange with an assistant that has the server enabled. The values are illustrative, not live data:
+
+```text
+User: What is the latest Banxico FIX exchange rate, and what date does it refer to?
+
+Assistant: [calls mx_fix_rate]
+  -> seriesId: SF43718, source: Banxico, unit: MXN per USD
+  -> observations: [{ date: "2026-11-18", value: 18.42 }]
+
+Assistant: The latest FIX rate is 18.42 MXN per USD, for the observation
+dated 2026-11-18 (illustrative values).
+```
+
+## Transports and exposure
+
+- **stdio (default):** used by Claude Desktop, Cursor, and OpenCode. No port is opened.
+- **Streamable HTTP (optional, local only):** `MCP_TRANSPORT=http MCP_HTTP_PORT=3333` exposes `http://127.0.0.1:3333/mcp`. It binds to loopback and has **no authentication**. Do not expose it to a network, reverse proxy, or tunnel unless you add suitable authentication and network controls.
+
+## Local development
+
+Requirements: Node.js 20 or newer and npm. Node-toolchain commands are run through `scripts/in-dev` in this repository.
+
+```sh
+git clone https://github.com/JEHH97/mcp-mx-economy.git
+cd mcp-mx-economy
+npm ci
+cp .env.example .env
+# Edit .env and add your personal provider tokens.
+npm run build
+node dist/index.js
+```
+
+To point a desktop client at a local build instead of npm, replace `"npx", "-y", "mcp-mx-economy"` with `"node", "/absolute/path/to/mcp-mx-economy/dist/index.js"`.
 
 ## Get free API tokens
 
@@ -163,7 +196,7 @@ All checks run through one command:
 npm run check
 ```
 
-It runs ESLint, Prettier validation, TypeScript typechecking, Vitest with domain-logic coverage thresholds, a production build, and the forbidden-content scan. Tests use recorded fixture payloads, injected mock HTTP, and an in-memory MCP protocol client; they do not need tokens or network access.
+It runs ESLint, Prettier validation, TypeScript typechecking, Vitest with domain-logic coverage thresholds, a production build, a stdio smoke test of the built binary (direct and through a symlink, as npm exposes it), and the forbidden-content scan. Tests use recorded fixture payloads, injected mock HTTP, and an in-memory MCP protocol client; they do not need tokens or network access.
 
 ## License
 

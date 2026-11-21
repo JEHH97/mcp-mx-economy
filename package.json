@@ -1,7 +1,28 @@
 {
-  "name": "mcp-mx-economy",
+  "name": "@x/mcp-mx-economy",
   "version": "1.0.0",
   "description": "An MCP server for Mexican economic indicators from public Banxico and INEGI APIs.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mexico",
+    "banxico",
+    "inegi",
+    "economics",
+    "indicators",
+    "exchange-rate",
+    "inflation",
+    "ai-tools"
+  ],
+  "homepage": "https://github.com/JEHH97/mcp-mx-economy#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JEHH97/mcp-mx-economy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JEHH97/mcp-mx-economy/issues"
+  },
+  "author": "Jesús Enrique Hernández Herrera <jesush1236@gmail.com>",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -22,8 +43,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
     "scan": "node scripts/scan-forbidden.mjs",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build && npm run scan",
-    "start": "node dist/index.js"
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build && npm run smoke && npm run scan",
+    "start": "node dist/index.js",
+    "smoke": "node scripts/smoke-stdio.mjs",
+    "prepublishOnly": "npm run check"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
@@ -41,5 +64,9 @@
   },
   "overrides": {
     "esbuild": "^0.28.2"
+  },
+  "main": "eslint.config.js",
+  "directories": {
+    "test": "test"
   }
 }
