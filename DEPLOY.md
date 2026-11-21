@@ -85,7 +85,7 @@ From a machine or directory with no local copy of the repository:
 
 ```sh
 npm view mcp-mx-economy version
-npx -y mcp-mx-economy@latest < /dev/null
+npx -y mcp-mx-economy@1.0.0 < /dev/null
 ```
 
 Starting the server over stdio with no input should exit cleanly without printing anything to stdout. For a real protocol check, add the package to an MCP client (see the README) and confirm that the eight `mx_*` tools are listed. Tools that query data need `BANXICO_TOKEN` or `INEGI_TOKEN` in the client's `env`; without them the server still starts and those tools return a setup message.
